@@ -27,18 +27,17 @@ jobs:
 
           mkdir -p packages/round-selection/src packages/round-selection/tests
 
-          mv UniversalTextSelection.tsx packages/round-selection/src/UniversalTextSelection.tsx
-          mv selection-geometry.ts packages/round-selection/src/selection-geometry.ts
-          mv universal-text-selection.css packages/round-selection/src/styles.css
-          mv index.ts packages/round-selection/src/index.ts
-          mv tests/selection-geometry.test.ts packages/round-selection/tests/selection-geometry.test.ts
-          mv AUDIT.md packages/round-selection/AUDIT.md
-          mv VALIDATION.md packages/round-selection/VALIDATION.md
+          [ ! -f UniversalTextSelection.tsx ] || mv UniversalTextSelection.tsx packages/round-selection/src/UniversalTextSelection.tsx
+          [ ! -f selection-geometry.ts ] || mv selection-geometry.ts packages/round-selection/src/selection-geometry.ts
+          [ ! -f universal-text-selection.css ] || mv universal-text-selection.css packages/round-selection/src/styles.css
+          [ ! -f index.ts ] || mv index.ts packages/round-selection/src/index.ts
+          [ ! -f tests/selection-geometry.test.ts ] || mv tests/selection-geometry.test.ts packages/round-selection/tests/selection-geometry.test.ts
+          [ ! -f AUDIT.md ] || mv AUDIT.md packages/round-selection/AUDIT.md
+          [ ! -f VALIDATION.md ] || mv VALIDATION.md packages/round-selection/VALIDATION.md
 
           rm -rf tests
           rm -f demo.tsx styles.d.ts tsconfig.json tsconfig.tests.json
           rm -rf .bootstrap-monorepo .bootstrap-monorepo-v2
-          rm -f .github/workflows/finalize-monorepo.yml
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -52,26 +51,61 @@ jobs:
           corepack prepare pnpm@11.17.0 --activate
           pnpm --version
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Typecheck workspace
-        run: pnpm typecheck
-
-      - name: Run geometry tests
-        run: pnpm test
-
-      - name: Build applications
-        run: pnpm build
-
-      - name: Remove generated output
+      - name: Validate and record result
+        id: validation
         shell: bash
         run: |
+          set +e
+          : > .ci-validation.log
+
+          echo '## pnpm install' >> .ci-validation.log
+          pnpm install --no-frozen-lockfile >> .ci-validation.log 2>&1
+          install_status=$?
+
+          typecheck_status=99
+          test_status=99
+          build_status=99
+
+          if [ "$install_status" -eq 0 ]; then
+            echo '\n## pnpm typecheck' >> .ci-validation.log
+            pnpm typecheck >> .ci-validation.log 2>&1
+            typecheck_status=$?
+
+            echo '\n## pnpm test' >> .ci-validation.log
+            pnpm test >> .ci-validation.log 2>&1
+            test_status=$?
+
+            echo '\n## pnpm build' >> .ci-validation.log
+            pnpm build >> .ci-validation.log 2>&1
+            build_status=$?
+          fi
+
+          cat > CI_VALIDATION.md <<REPORT
+          # CI validation
+
+          - pnpm install: $install_status
+          - typecheck: $typecheck_status
+          - tests: $test_status
+          - production builds: $build_status
+
+          Exit code 0 means success. Exit code 99 means the step was skipped because dependency installation failed.
+
+          Full command output is stored in \`.ci-validation.log\` when validation is not fully successful.
+          REPORT
+
           rm -rf node_modules .turbo
           rm -rf apps/web/.next apps/demo/dist packages/round-selection/.test-dist
           find . -name '*.tsbuildinfo' -delete
 
-      - name: Commit validated monorepo
+          if [ "$install_status" -eq 0 ] && [ "$typecheck_status" -eq 0 ] && [ "$test_status" -eq 0 ] && [ "$build_status" -eq 0 ]; then
+            rm -f .ci-validation.log CI_VALIDATION.md
+            rm -f .github/workflows/finalize-monorepo.yml
+            echo 'passed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'passed=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit finalized workspace
         shell: bash
         run: |
           set -euo pipefail
@@ -79,10 +113,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
 
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
+          if ! git diff --cached --quiet; then
+            git commit -m "Finalize Next.js monorepo and record validation"
+            git push origin HEAD:main
           fi
 
-          git commit -m "Convert repository to validated Next.js monorepo"
-          git push origin HEAD:main
+      - name: Mark failed validation
+        if: steps.validation.outputs.passed != 'true'
+        run: exit 1
