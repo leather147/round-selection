@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 
 import { demoProjects } from "./demos";
 
-const webUrl = import.meta.env.VITE_WEB_URL ?? "http://localhost:3000";
+const webUrl =
+  import.meta.env.VITE_WEB_URL ??
+  (import.meta.env.DEV
+    ? "http://localhost:3000"
+    : "https://github.com/leather147/round-selection");
 
 function readHash() {
   const id = window.location.hash.replace(/^#\/?/, "");
