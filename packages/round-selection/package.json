@@ -1,0 +1,33 @@
+{
+  "name": "@round-selection/react",
+  "version": "0.4.0",
+  "description": "Three high-fidelity custom text-selection renderers for React 19.",
+  "type": "module",
+  "sideEffects": [
+    "./src/styles.css"
+  ],
+  "files": [
+    "src",
+    "AUDIT.md",
+    "VALIDATION.md"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test .test-dist/tests/selection-geometry.test.js",
+    "clean": "node -e \"const fs=require('node:fs');fs.rmSync('.test-dist',{recursive:true,force:true});fs.rmSync('tsconfig.tsbuildinfo',{recursive:true,force:true});fs.rmSync('tsconfig.tests.tsbuildinfo',{recursive:true,force:true});\""
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0 <20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "typescript": "catalog:"
+  }
+}
