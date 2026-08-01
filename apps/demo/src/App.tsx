@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { demoProjects } from "./demos";
 
+const webUrl = import.meta.env.VITE_WEB_URL ?? "http://localhost:3000";
+
 function readHash() {
   const id = window.location.hash.replace(/^#\/?/, "");
   return demoProjects.some((project) => project.id === id) ? id : demoProjects[0]!.id;
@@ -29,7 +31,7 @@ export function App() {
   return (
     <div className="lab-shell">
       <header className="lab-header">
-        <a href="http://localhost:3000" className="lab-brand"><span>R</span><strong>Demo laboratory</strong></a>
+        <a href={webUrl} className="lab-brand"><span>R</span><strong>Demo laboratory</strong></a>
         <div className="lab-status"><i /> React 19 / local workspace</div>
         <a href="https://github.com/leather147/round-selection">Repository ↗</a>
       </header>
