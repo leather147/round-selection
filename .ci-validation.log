@@ -1,0 +1,18 @@
+## pnpm install
+Scope: all 4 workspace projects
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 10, reused 0, downloaded 9, added 0
+Progress: resolved 30, reused 0, downloaded 20, added 0
+Progress: resolved 44, reused 0, downloaded 28, added 0
+Progress: resolved 109, reused 0, downloaded 44, added 0
+Packages: +46
+++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 111, reused 0, downloaded 52, added 46, done
+
+devDependencies:
++ turbo 2.10.7 (2.10.8 is available)
++ typescript 5.8.3 (7.0.2 is available)
+
+[ERR_PNPM_IGNORED_BUILDS] Ignored build scripts: sharp@0.34.5
+
+Run "pnpm approve-builds" to pick which dependencies should be allowed to run scripts.
