@@ -38,6 +38,15 @@ pnpm test
 pnpm build
 ```
 
+## Deploy to Vercel
+
+Import the repository as two Vercel projects:
+
+- `apps/web` — Next.js landing
+- `apps/demo` — Vite demo laboratory
+
+The repository is pinned to Node.js `22.x` and Vercel-supported pnpm `10.34.5`. App-local `vercel.json` files declare the framework/output settings. See [`docs/deployment/vercel.md`](docs/deployment/vercel.md) for the exact dashboard setup and environment variables.
+
 ## Design and performance decisions
 
 - Next.js 16 App Router keeps the landing shell server-rendered.
