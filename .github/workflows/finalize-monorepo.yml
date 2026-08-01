@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/finalize-monorepo.yml
       - pnpm-workspace.yaml
+      - packages/**
   workflow_dispatch:
 
 permissions:
