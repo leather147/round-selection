@@ -1,9 +1,9 @@
 # CI validation
 
-- pnpm install: 1
-- typecheck: 99
-- tests: 99
-- production builds: 99
+- pnpm install: 0
+- typecheck: 0
+- tests: 2
+- production builds: 0
 
 Exit code 0 means success. Exit code 99 means the step was skipped because dependency installation failed.
 
