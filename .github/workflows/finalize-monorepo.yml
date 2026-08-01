@@ -1,0 +1,88 @@
+name: Finalize and validate monorepo
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/finalize-monorepo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Move the library into packages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p packages/round-selection/src packages/round-selection/tests
+
+          mv UniversalTextSelection.tsx packages/round-selection/src/UniversalTextSelection.tsx
+          mv selection-geometry.ts packages/round-selection/src/selection-geometry.ts
+          mv universal-text-selection.css packages/round-selection/src/styles.css
+          mv index.ts packages/round-selection/src/index.ts
+          mv tests/selection-geometry.test.ts packages/round-selection/tests/selection-geometry.test.ts
+          mv AUDIT.md packages/round-selection/AUDIT.md
+          mv VALIDATION.md packages/round-selection/VALIDATION.md
+
+          rm -rf tests
+          rm -f demo.tsx styles.d.ts tsconfig.json tsconfig.tests.json
+          rm -rf .bootstrap-monorepo .bootstrap-monorepo-v2
+          rm -f .github/workflows/finalize-monorepo.yml
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+
+      - name: Activate pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.17.0 --activate
+          pnpm --version
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Typecheck workspace
+        run: pnpm typecheck
+
+      - name: Run geometry tests
+        run: pnpm test
+
+      - name: Build applications
+        run: pnpm build
+
+      - name: Remove generated output
+        shell: bash
+        run: |
+          rm -rf node_modules .turbo
+          rm -rf apps/web/.next apps/demo/dist packages/round-selection/.test-dist
+          find . -name '*.tsbuildinfo' -delete
+
+      - name: Commit validated monorepo
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Convert repository to validated Next.js monorepo"
+          git push origin HEAD:main
