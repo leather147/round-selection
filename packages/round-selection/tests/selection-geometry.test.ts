@@ -11,7 +11,7 @@ import {
   unionBoxesToLoops,
   viewportRectToLocalBox,
   type SelectionBox,
-} from "../selection-geometry.js";
+} from "../src/selection-geometry.js";
 
 const box = (left: number, top: number, right: number, bottom: number) =>
   createSelectionBox(left, top, right, bottom);
