@@ -1,0 +1,26 @@
+{
+  "name": "@round-selection/web",
+  "version": "0.4.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "node -e \"console.log('web: no unit tests')\"",
+    "clean": "node -e \"const fs=require('node:fs');fs.rmSync('.next',{recursive:true,force:true});fs.rmSync('tsconfig.tsbuildinfo',{recursive:true,force:true});\""
+  },
+  "dependencies": {
+    "@round-selection/react": "workspace:*",
+    "motion": "12.42.2",
+    "next": "16.2.12",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}
