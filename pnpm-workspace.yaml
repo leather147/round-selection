@@ -3,7 +3,7 @@ packages:
   - packages/*
 
 allowBuilds:
-  sharp: set this to true or false
+  sharp: true
 
 catalog:
   react: 19.2.8
