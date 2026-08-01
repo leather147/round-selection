@@ -1,0 +1,68 @@
+.uts-root {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Native selection stays visible before hydration, while disabled, and when
+   the custom renderer intentionally falls back because of an overflow. */
+.uts-root[data-custom-selection-active="true"] .uts-content::selection,
+.uts-root[data-custom-selection-active="true"] .uts-content *::selection {
+  color: inherit;
+  background: transparent;
+}
+
+.uts-content {
+  position: relative;
+  z-index: 1;
+}
+
+.uts-overlay {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  overflow: visible;
+  contain: layout style;
+}
+
+.uts-fragment,
+.uts-adjacent-fragment,
+.uts-inner-fill,
+.uts-inner-cutout {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.uts-inner-fill {
+  z-index: 0;
+}
+
+.uts-inner-cutout {
+  z-index: 1;
+}
+
+.uts-adjacent-fragment {
+  z-index: 2;
+}
+
+.uts-contour-svg {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+@media (forced-colors: active) {
+  .uts-root[data-custom-selection-active="true"] .uts-content::selection,
+  .uts-root[data-custom-selection-active="true"] .uts-content *::selection {
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .uts-overlay {
+    display: none;
+  }
+}
